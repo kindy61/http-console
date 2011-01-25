@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* vim: ft=javascript
+*/
 
 var path = require('path'),
     sys = require('util');
@@ -24,7 +26,7 @@ var argv = process.argv.slice(2), args = [],
     arg, option,
     options = {
         rememberCookies: false,
-        useSSL:          protocol === 'https',
+        useSSL:          null,
         json:            false,
         timeout:         true,
         verbose:         false
@@ -68,10 +70,22 @@ while (arg = argv.shift()) {
 var url      = args.shift() || 'http://127.0.0.1:8080',
     protocol = url.match(/^(https?)?/)[0] || 'http';
 
+if (options.useSSL === null) {
+    options.useSSL = protocol === 'https';
+}
+
 url = url.replace(protocol + '://', '').split('@');
 
-var hostPort = url.pop().split(':'),
-    auth     = url.pop();
+var hostPort = url.pop(),
+    auth     = url.pop(),
+    path;
+
+hostPort = hostPort.replace(/\/.*$/, function (m) {
+   path = m;
+   return '';
+});
+
+hostPort = hostPort.split(':');
 
 if (auth) {
     auth = auth.split(':');
